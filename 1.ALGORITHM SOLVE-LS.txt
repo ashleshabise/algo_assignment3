@@ -1,0 +1,78 @@
+/********************************************************************************
+*   	MTH 524A
+*   	Homework-3
+*   	Group ID : 04
+*   	Problem 1
+********************************************************************************/
+
+summation(l[][],y[],start,end,i)
+1.	sum <- 0
+2.	for j <- start to end
+3.		sum += l[i][j]*y[j]
+4.	return sum
+---------------------------------------------------------------------------------
+ABS(x)		/* returns absolute value of given number*/
+
+1.	if x>=0
+2.		return x
+3.	else
+4.		return -x
+
+---------------------------------------------------------------------------------
+LUP-DECOMPOSITION(A[n][n])
+
+1.	n=A.rows	/*Where A=a[i][j] where i=1...n & j=1...n is a matrix*/
+2.	let pi[1...n] be a new array
+3.	for i <- 1 to n
+4.		pi[i] <- i
+5.	for k <- 1 to n
+6.		p=0
+7.		for i<- k to n
+8.			if ABS(a[i][k])>p
+9.				p <- ABS(a[i][k])
+10.				k' <- i
+11.		if p' == 0
+12.			error"Singular Matrix"
+13.		exchange pi[k] with pi[k']
+14.		for i <- 1 to n
+15.			exchange a[i][k] to a[i][k']
+16.		for i<- k+1 to n
+17.			a[i][k] <- a[i][k]/a[k][k]
+18.			for j <- k+1 to n
+19.				a[i][j] <- a[i][j]-a[i][k]*a[k][j]
+
+---------------------------------------------------------------------------------
+
+LUP-SOLVE(L[][],U[][],pi[],b[],rowsL)
+
+1.	n=rowsL
+2.	/*Initialisation of P matrix and Pb*/
+3.	for i <- 0 to n
+4.		Pb[i] <- 0	/*Initialisation of Pb*/
+5.		for j <- 0 to n
+6.			if( j== pi[i])
+7.				P[i][j] <- 1
+8.			else
+9.				P[i][j] <- 0
+10.	/*Calculate Pb form P and b*/
+11.	for i <- 0 to n
+12.		for j <- 0 to n
+13.			Pb[i] += P[i][j]*b[j]
+14.	
+15.	/*Initialisation of y and x*/
+16.	for i <- 0 to n
+17.		y[i] <- 0 , x[i] <- 0
+18.	for i <- 1 to n
+19.		y[i] <- Pb[i] - summation(l,y,1,i-1)
+20.	for i <- n to 0 ; i--
+21.		x[i] <- (y[i]-summation(U,x,i+1,n))/U[i][i]
+22.	return x
+
+---------------------------------------------------------------------------------
+
+SOLVE-LS(A[][],b[])
+1.	LUP-DECOMPOSITION(A[n][n])
+2.	result <- LUP-SOLVE(L[][],U[][],pi[],b[],rowsL)
+3.	return result
+
+---------------------------------------------------------------------------------

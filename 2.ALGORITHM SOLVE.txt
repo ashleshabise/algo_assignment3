@@ -1,0 +1,204 @@
+/********************************************************************************
+*   	MTH 524A
+*   	Homework-3
+*   	Group ID : 04
+*   	Problem 2
+********************************************************************************/
+
+---------------------------------------------------------------------------------
+/* To find F(l,Gamma)at q*/
+F-l-Gamma(r[k][2],Gamma[k],l[2],q[2])	//r[1...k][0..2] & Gamma[1...k] should be obtained by files for R and Gamma
+1.	sum = 0
+2.	for j = 1 to k
+3.		temp = sqrt( powf((q[0] - r[j][0]),2) + powf((q[1] - r[j][1]),2) + powf((q[2] - r[j][2]),2))
+4.		sum+= temp ? (sinf(temp))*Gamma[j]/temp : Gamma[j]
+5.	return sum		
+
+---------------------------------------------------------------------------------
+/*Algorithm for PARTITION*/
+
+PARTITION(r[3],L,lMatrix[L][L][L],pointList[L][L][L])
+1	Open partitionFile	
+2	print"opened partition file\n"
+3	declare integer variables l[3],binary[3],bString=0,temp
+4	for i=0 to 2
+5		print"generating binary string: "
+6	 	x[i] = (r[i]*L)/a
+7	 	l[i] = (int)x[i]
+8	 	print the values of x[i] and l[i]
+9	 	binary[i] =  (x[i]-l[i]) ? 0 : 1
+10	 	print the value of binary[i]
+11	 	bString = bString<<1 | binary[i]
+12	print "\n"
+13	// write 000 always. 
+14	print l[0], l[1], l[2], r[0],r[1],r[2] in partitionFile
+15	// update the lMatrix as well. 
+16	lMatrix[l[0]][l[1]][l[2]]++
+17	done[8]={0,0,0,0,0,0,0,0}
+18	for i=1 to bString; i++
+19		print "writing l[] into partition file\n"
+20		result = bString & i
+21		if (result ) 
+22			b1=result&4 ? 1:0
+23			b2=result&2 ? 1:0
+24			b3=result&1 ? 1:0
+25			// update the lMatrix
+26			if (!done[result])
+27				print l[0]-b1, l[1]-b2, l[2]-b3, r[0],r[1],r[2] in partitionFile
+28				lMatrix[l[0]-b1][l[1]-b2][l[2]-b3]++
+29				// push the point corresponding to l[] to the pointList 
+30				push(&pointList[l[0]-b1][l[1]-b2][l[2]-b3],r)
+31				done[result]=1
+32			print value of done[result]
+33	Close the partitionFile
+34	return TRUE
+
+------------------------------------------------------------------------------------------------------
+/*ALGORITHM for PARTITION-ALL*/
+
+PARTITION-ALL(L,inputFileName,outputFileName)
+1	print "Entering partitionall\n"
+2	K=0
+3	// initialise every element of lMatrix to 0. 
+4	for i=0 to L-1 
+5		for j=0 to L-1 
+6			for k=0 to L-1
+7				lMatrix[i][j][k]=0
+8
+9	Open inputFileName
+10		while (fgets(str,SIZE,fin) != NULL)
+11			print "getting data from input file\n"
+12			sscanf(str, "%f %f %f", &x1, &x2, &x3)
+13			print x1,x2,x3
+14			/*Validity Check for Input*/
+15			if (x1>a || x1<0 /*|| x1==temp1*/ )
+16				print "Input Failed\n"
+17				return FALSE
+18			if (x2>a || x2<0 /*|| x2==temp2*/)
+19				print "Input Failed\n"
+20				return FALSE
+21			if (x3>a || x3<0 /*|| x3==temp3*/)
+22				print "Input Failed\n"
+23				return FALSE
+24			r[0] = x1
+25			r[1] = x2
+26			r[2] = x3
+27			PARTITION(r,L,lMatrix)
+28			// so we have K points. 
+29			K++
+30	Close the inputFileName
+31	Open the OutputFileName
+32	for i=0 to L-1
+33		for j=0 to L-1
+34			for k=0 to L-1
+35				print i, j, k in OutputFileName
+36				print lMatrix[i][j][k] in OutputFileName
+37				Open the partition file
+38				while (fgets(str,SIZE,fPartition) != NULL)
+39					sscanf(str,"%d %d %d %f %f %f",&a1,&a2,&a3,&x1,&x2,&x2)
+40					if (i==a1 && j==a2 && k==a3)
+41						print x1,x2,x3 in OutputFileName
+42				Close the partition file.
+43	Close the OutputFileName
+44	return TRUE
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+/*Algorithm for BUILD-MATRIX*/
+
+BUILD-MATRIX(L, P, Q)
+1    	Open the FileForP 
+2		i=0
+3		while (fgets(str,SIZE,fp) != NULL)
+4			print "getting data from FileForP file\n"
+5			sscanf(str, "%f %f %f", &p[i][0], &p[i][1], &p[i][2])
+6			i++
+7	Close the FileForP
+8   	Open the FileForQ 
+9		i=0
+10		while (fgets(str,SIZE,fq) != NULL)
+11			print "getting data from FileForQ file\n"
+12			sscanf(str, "%f %f %f", &q[i][0], &q[i][1], &q[i][2])
+13			i++
+14	Close the FileForQ
+
+   /* Determination of Matrix A[i][j]*/     
+15   	for i <-- 0 to M-1 do
+16 	  for j <-- 0 to N-1 do
+17   		temp <-- 0
+18   		for k <-- 0 to 2 do
+19   			temp <-- temp + pow( q[i][k]-p[j][k]  , 2)
+20   		temp <-- sqrt(temp)   					//storing value of |qi-pj| in temp
+21   		A[i][j] <-- temp:sin(temp)/temp?1             				//store value of sin(temp)/temp as 1 if temp<-0
+   /* Write the Matrix A into an output file named Amatrix */
+22  	Open the Amatrix File in write mode.
+23  	for i <-- 0 to M-1 do
+24  		for j <-- 0 to M-1 do
+25  			Write i, j and corresponding product Matrix value into the output file
+26  	Close the output Matrix File
+   /* Find the Product of A(transpose) and A. */
+27   	for i <-- 0 to N-1 do
+28  	for j <-- 0 to i do
+29  		result[i][j] <-- 0
+30  		for k <-- 0 to N-1 do
+31  	 		result[i][j] <-- result[i][j] + (A[k][i] * A[k][j])
+32  	result[j][i] <-- result[i][j]						//A(transpose)*A is a symmetric matrix.
+   /* Write the product into an output file */
+33 	Open the output Matrix File in write mode.
+34  	for i <-- 0 to M-1 do
+35  		for j <-- 0 to M-1 do
+36  			Write i, j and corresponding product Matrix value into the output file
+37  	Close the output Matrix File
+
+---------------------------------------------------------------------------------
+
+
+SOLVE(L,R,P,Q,Gamma)
+1	PARTITION-ALL(L,inputFileName,outputFileName)
+2	BUILD-MATRIX(L, l, P, Q)
+3	Open the Amatrix File /*This File is used to take the Matrix A*/
+4		while (fgets(str,SIZE,fin) != NULL)
+5			print "getting data from Amatrix file\n"
+6			sscanf(str, "%f %f %f", &i, &j, &A[i][j])
+7	Close the Amatrix file
+
+8	Open the OutputFileName /*This File is used to take product matric of A transpose and A*/
+9		while (fgets(str,SIZE,fout) != NULL)
+10			print "getting data from OutputFileName file\n"
+11			sscanf(str, "%f %f %f", &i, &j, &Prod[i][j])
+12	Close the OutputFileName
+	
+13   	Open the FileForR 
+14		i=0
+15		while (fgets(str,SIZE,fr) != NULL)
+16			print "getting data from FileForR file\n"
+17			sscanf(str, "%f %f %f", &r[i][0], &r[i][1], &r[i][2])
+18			i++
+19	Close the FileForR
+
+20    	Open the FileForGamma 
+21		i=0
+22		while (fgets(str,SIZE,fp) != NULL)
+23			print "getting data from FileForGamma file\n"
+24			sscanf(str, "%f", &Gamma[i])
+25			i++
+26	Close the FileForGamma
+	
+27	for a=0 to (L-1)
+28		for b=0 to (L-1)
+29			for c=0 to (L-1)
+30				for p=1 to m
+31					F[a][b][c][p]= F-l-Gamma(r[c][2],Gamma[c],l[2],q[2]+l/L)	/*this calculate F at different values of L for different q's*/
+					/*finding product of Atranspose and F and save into b[1...m]*/
+32					for i=1 to m
+33						b[i]=0
+34					for i=1 to m
+35						b[i]+= A[i][p]*F[a][b][c][p]
+36					SOLVE-LS(A[m][n],b[m])
+				/* Write the value of si[] for different values of l in a file named FinalOutput */
+37  					Open the Amatrix File in write mode.
+38					for i <-- 1 to m do
+39					Write i, j and corresponding product Matrix value into the output file
+40  					Close the output Matrix File
+41	End of all 5 for loops
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
